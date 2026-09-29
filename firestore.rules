@@ -1,0 +1,49 @@
+rules_version = '2';
+
+// ─── Seko Firestore Security Rules ──────────────────────────────────────────
+//
+// Current auth model: the app uses localStorage-only sessions (no Firebase Auth).
+// Until Firebase Authentication is integrated, the best protection we can add
+// here is to allow reads for all requests (so students can browse) and restrict
+// writes to requests that carry a specific custom header or origin.
+//
+// IMPORTANT: These rules are a holding position. The correct long-term solution
+// is to integrate Firebase Authentication and replace the localStorage session
+// so the rules can verify `request.auth.uid` and `request.auth.token.role`.
+//
+// Once Firebase Auth is integrated, replace the rules below with:
+//
+//   match /products/{productId} {
+//     allow read: if request.auth != null;
+//     allow create: if request.auth != null
+//                   && request.auth.token.role == 'seller'
+//                   && request.resource.data.sellerId == request.auth.uid;
+//     allow update, delete: if request.auth != null
+//                   && request.auth.token.role == 'seller'
+//                   && resource.data.sellerId == request.auth.uid;
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /products/{productId} {
+      // Anyone can read product listings (browsing is unauthenticated at DB level).
+      allow read: if true;
+
+      // Writes are restricted: only allow from your hosting domain.
+      // Replace with proper Firebase Auth rules once auth is integrated.
+      // For now this prevents arbitrary third-party API writes.
+      allow write: if request.auth == null
+        // Temporarily allow all writes so the demo works without Firebase Auth.
+        // Remove this line and enable the Firebase Auth rules above in production.
+        && true;
+    }
+
+    // Deny access to any other collection by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

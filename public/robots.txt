@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /seller/
+Disallow: /cart
+Disallow: /browse
+Disallow: /product/
+
+Allow: /login
+Allow: /privacy
+Allow: /terms
+
+Sitemap: https://YOUR_DOMAIN/sitemap.xml
